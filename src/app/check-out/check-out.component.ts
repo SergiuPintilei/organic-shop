@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { AuthService } from './../auth.service';
 import { OrderService } from './../order.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -18,7 +19,8 @@ export class CheckOutComponent implements OnInit, OnDestroy {
   userSubscription: Subscription;
   userId: string;
 
-  constructor(private authService: AuthService, private shoppingCartService: ShoppingCartService, private orderService: OrderService) { }
+  constructor(private router: Router,
+    private authService: AuthService, private shoppingCartService: ShoppingCartService, private orderService: OrderService) { }
 
   async ngOnInit() {
     let cart$ = await this.shoppingCartService.getCart();
@@ -31,8 +33,9 @@ export class CheckOutComponent implements OnInit, OnDestroy {
     this.userSubscription.unsubscribe();
   }
 
-  placeOrder() {
+  async placeOrder() {
     let order = new Order(this.userId, this.shipping, this.cart);
-    this.orderService.storeOrder(order);
+    let result = await this.orderService.storeOrder(order);
+    this.router.navigate(['/order-success', result.key]);
   }
 }
